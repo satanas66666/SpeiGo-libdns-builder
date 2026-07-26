@@ -1,0 +1,24 @@
+{
+  "project": "SpeiGo VPN",
+  "base": "Fase 4.35",
+  "versionName": "1.2.26",
+  "versionCode": 37,
+  "target": {
+    "abi": "armeabi-v7a",
+    "goos": "android",
+    "goarch": "arm",
+    "goarm": 7,
+    "minApi": 21,
+    "expectedElfClass": "ELF32",
+    "expectedMachine": "ARM",
+    "expectedEabi": "EABI5",
+    "expectedType": "ET_DYN / PIE",
+    "outputName": "libdns.so"
+  },
+  "preserve": "app/src/main/jniLibs/arm64-v8a/libdns.so",
+  "source": {
+    "repository": "https://github.com/Mygod/dnstt.git",
+    "ref": "plugin",
+    "package": "./dnstt-client"
+  }
+}
