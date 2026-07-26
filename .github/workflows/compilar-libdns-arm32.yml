@@ -1,0 +1,67 @@
+name: Compilar libdns ARM32 API21
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/**"
+      - ".github/workflows/compilar-libdns-arm32.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Descargar paquete
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Android NDK r27d
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "ndk;27.3.13750724"
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.3.13750724" >> "$GITHUB_ENV"
+
+      - name: Configurar Go 1.24
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.4"
+          cache: false
+
+      - name: Compilar y validar
+        shell: bash
+        run: |
+          chmod +x scripts/*.sh
+          ./scripts/compilar_libdns_arm32_api21.sh
+
+      - name: Verificación independiente
+        shell: bash
+        run: |
+          test -s out/libdns.so
+          file out/libdns.so
+          readelf -h out/libdns.so
+          grep -q "RESULTADO: APTO" out/VALIDACION_LIBDNS.txt
+
+      - name: Publicar libdns.so
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeiGo-libdns-armeabi-v7a-api21
+          path: |
+            out/libdns.so
+            out/VALIDACION_LIBDNS.txt
+            out/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
